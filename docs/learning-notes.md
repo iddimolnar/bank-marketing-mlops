@@ -92,3 +92,40 @@ kivétel-ág a naplózóban) külön tesztelve. A tesztkód is beleszámít a co
 
 **Tanulság:** a jó rendszer a *határon* validál (rossz adat ott bukjon el), és a
 beállítás/napló külön van a logikától — így tesztelhető és cserélhető.
+
+---
+
+## Fázis 2 — Adat, előfeldolgozás, modell
+
+**Cél:** a nyers CSV-ből tanítható modell, de a lépések külön, tesztelhető darabokban.
+
+Négy modul, mind egy felelősséggel:
+
+1. **`data.py` — betöltés és előkészítés.**
+   - `load_data`: a `;`-elválasztott CSV beolvasása.
+   - `feature_columns`: megadja a numerikus és kategorikus oszlopokat. A `duration`
+     alapból **kimarad** (adatszivárgás), de kapcsolóval visszakérhető.
+   - `prepare_xy`: szétválasztja a jellemzőket (`X`) és a célt (`y`), a `yes/no`-t
+     `1/0`-ra fordítja, és hibát dob ismeretlen célértéknél.
+   - `split`: **rétegzett** (stratified) tanító/teszt vágás — megőrzi az osztályarányt
+     (fontos, mert a "nem" ~88%).
+
+2. **`features.py` — előfeldolgozó (`ColumnTransformer`).**
+   Numerikus → standardizálás; kategorikus → one-hot kódolás `handle_unknown="ignore"`-ral,
+   hogy egy sosem látott kategória se dobjon hibát kiszolgáláskor.
+
+3. **`model.py` — a modell egyetlen `Pipeline`-ban.**
+   Az előfeldolgozó + osztályozó (`HistGradientBoostingClassifier`) egy csomagban. Így a
+   betanított előfeldolgozás "együtt utazik" a modellel → tanítás és kiszolgálás ugyanúgy
+   transzformál (nincs training-serving skew).
+
+4. **`metrics.py` — kiértékelés.**
+   Visszaad öt mérőszámot (roc_auc, f1, accuracy, precision, recall). A promóciós kapu
+   (3. fázis) ezekből dönt majd.
+
+**Egy fontos gyakorlati lecke — típusok:** a pandas/sklearn nincs teljesen típusozva, ezért
+a pyright "ismeretlen" típusokat lát. A határokon **`cast()`-tel** tesszük explicitté a
+típust (nem kikapcsoljuk az ellenőrzést). A `Protocol` csak típusleíró, nem fut — ezt
+`# pragma: no cover` jelzi (indoklással), hogy a lefedettség tiszta maradjon.
+
+**Állapot:** 44 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
