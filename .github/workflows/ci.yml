@@ -43,3 +43,5 @@ jobs:
         run: docker build -f docker/Dockerfile -t bank-marketing-api:ci .
       - name: Build MLflow image
         run: docker build -f docker/mlflow.Dockerfile -t bank-marketing-mlflow:ci .
+      - name: Build Streamlit image
+        run: docker build -f docker/Dockerfile.streamlit -t bank-marketing-streamlit:ci .

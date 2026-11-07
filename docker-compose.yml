@@ -55,6 +55,22 @@ services:
       mlflow:
         condition: service_healthy
 
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    environment:
+      BANK_REFERENCE_PATH: data/reference/reference.parquet
+      BANK_REQUEST_LOG_PATH: data/logs/requests.jsonl
+      BANK_DRIFT_REPORT_PATH: data/reports/drift_report.html
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   pg_data:
   mlartifacts:
