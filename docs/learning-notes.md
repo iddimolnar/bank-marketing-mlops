@@ -129,3 +129,44 @@ típust (nem kikapcsoljuk az ellenőrzést). A `Protocol` csak típusleíró, ne
 `# pragma: no cover` jelzi (indoklással), hogy a lefedettség tiszta maradjon.
 
 **Állapot:** 44 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
+
+---
+
+## Fázis 3 — Tanítás, MLflow, promóciós kapu
+
+**Cél:** a modell tanítása *nyomon követhetően* (MLflow), és csak akkor kerüljön élesbe,
+ha nem rontja a korábbi eredményt.
+
+Három modul:
+
+1. **`gate.py` — promóciós kapu.**
+   Egy tiszta döntési szabály: az új ("candidate") modell csak akkor válthatja le a
+   jelenlegi éleset ("Production"), ha a választott mérőszámban (alapból `roc_auc`) nem
+   rosszabb (egy tűréshatáron belül). Ha nincs még éles modell, az új mehet. Ez a feladat
+   kulcskövetelménye: **automatikusan megakadályozza a romlást**.
+
+2. **`registry.py` — MLflow burkolók.**
+   - `setup_tracking`: beállítja a tracking szervert és a kísérletet.
+   - `log_training_run`: elindít egy "run"-t, logolja a paramétereket, mérőszámokat, és
+     elmenti + regisztrálja a modellt (artifact). Visszaadja a run azonosítót és a verziót.
+   - `load_production_pipeline`: betölti az éles modellt (vagy `None`-t, ha nincs).
+   - `promote_model`: a kiválasztott verziót `Production`-ra állítja, a régit archiválja.
+   A model registry **adatbázis-backendet** igényel (SQLite/Postgres), sima fájltár nem elég.
+
+3. **`train.py` — összefűzés.**
+   Betölt → vág → tanít → kiértékel → lekéri az éles modell eredményét ugyanazon a teszten →
+   a kapu dönt → MLflow-ba logol és regisztrál → ha a kapu enged, promótál és frissíti az
+   Evidently referencia-adatot. `main()` a `bank-train` konzolparancs.
+
+**Gyakorlati leckék (amibe beleszaladtunk):**
+- **Verzió-ütközések:** az `mlflow` lehúzta a `pyarrow`-t 17-re, és a túl friss
+  `SQLAlchemy` (2.1) hiányzó osztály miatt elszállt — ezért **pontos verziókra pinneltünk**
+  (`sqlalchemy==2.0.35`). Ez pont az, amiért kellenek a reprodukálható `requirements`.
+- **Coverage + alfolyamat:** az MLflow a modell mentésekor egy segéd-alfolyamatot indított,
+  ami összezavarta a lefedettségmérést. Megoldás: explicit `pip_requirements` megadása, így
+  nem indul az alfolyamat.
+- **Tesztelés szerver nélkül:** a registry teszt egy **helyi SQLite** MLflow-tárat használ
+  ideiglenes mappában — valódi integráció, de nem kell hozzá szerver. A `train` tesztjei az
+  MLflow-hívásokat **mockolják** (így gyorsak és determinisztikusak).
+
+**Állapot:** 56 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
