@@ -1,0 +1,24 @@
+# Keep build context small and free of secrets / local state.
+.venv/
+.git/
+.github/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+htmlcov/
+.coverage*
+coverage.xml
+mlruns/
+mlartifacts/
+*.db
+.env
+docs/
+report/
+tests/
+data/logs/
+data/reports/
+data/reference/
+.DS_Store
