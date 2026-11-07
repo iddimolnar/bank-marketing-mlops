@@ -49,10 +49,12 @@ def test_log_register_promote_lifecycle(local_mlflow: Settings, xy: tuple[pd.Dat
     assert version == "1"
     # Registered but not yet promoted -> no Production model.
     assert registry.load_production_pipeline(local_mlflow) is None
+    assert registry.production_version(local_mlflow) is None
 
     registry.promote_model(local_mlflow, version)
     loaded = registry.load_production_pipeline(local_mlflow)
     assert loaded is not None
+    assert registry.production_version(local_mlflow) == "1"
     # The loaded pipeline can score the same data.
     features, _ = xy
     assert len(loaded.predict(features)) == len(features)
