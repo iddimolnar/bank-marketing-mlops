@@ -1,0 +1,10 @@
+# Development and test tooling (exact pins).
+# Install with: pip install -r requirements.txt -r requirements-dev.txt
+pytest==8.3.3
+pytest-cov==5.0.0
+pytest-mock==3.14.0
+coverage==7.6.4
+flake8==7.1.1
+ruff==0.7.3
+pyright==1.1.389
+pre-commit==4.0.1

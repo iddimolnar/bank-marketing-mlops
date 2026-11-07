@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bank-marketing-mlops"
+version = "0.1.0"
+description = "MLSecOps semester project: production-ready MLOps system for the UCI Bank Marketing dataset."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "pandas==2.2.3",
+    "numpy==2.1.3",
+    "scikit-learn==1.5.2",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.6.1",
+    "joblib==1.4.2",
+    "pyarrow==18.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.3",
+    "pytest-cov==5.0.0",
+    "pytest-mock==3.14.0",
+    "coverage==7.6.4",
+    "flake8==7.1.1",
+    "ruff==0.7.3",
+    "pyright==1.1.389",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["src", "tests"]
+omit = [
+    # Thin UI / orchestration layers: all business logic lives in src/ and is
+    # exercised there. Streamlit and Airflow files are 1-line pass-throughs.
+    "dashboard/*",
+    "airflow/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+# The 95% gate is enforced on the command line (--cov-fail-under=95) and in CI.
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RET", "ARG", "T20"]
+
+[tool.pyright]
+include = ["src"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
