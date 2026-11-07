@@ -214,3 +214,31 @@ A `503` külön státusz jól jelzi, hogy "még nincs betanított modell", nem p
 
 **Állapot:** 68 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba. A teljes Python
 alkalmazás kész és tesztelt; jöhet a konténerizálás.
+
+---
+
+## Fázis 6 — Docker Compose (egyetlen paranccsal indul)
+
+**Cél:** `docker compose up` indítsa az egész rendszert.
+
+Szolgáltatások:
+- **postgres** — az MLflow backend-adatbázisa (a model registry adatbázist igényel).
+- **mlflow** — tracking szerver + model registry; a UI a **5001** host-porton (a 5000-et a
+  macOS AirPlay foglalja).
+- **api** — a FastAPI alkalmazás (8000). A `./data` kötetként be van fűzve, így a naplók és a
+  referencia-adat a hoston is látszanak.
+
+A konténerek a compose-hálózaton **szolgáltatásnév** alapján érik el egymást
+(`mlflow:5000`, `postgres:5432`). A `depends_on` + healthcheck garantálja a helyes sorrendet.
+
+**Gyakorlati leckék (amibe beleszaladtunk):**
+- **Céges registry-proxy:** a Docker Desktop csak a hivatalos "library" image-eket engedi
+  (postgres igen, MinIO nem; a quay.io tiltott). Ezért **elhagytuk a MinIO-t**: az MLflow az
+  artifactokat egy **megosztott köteten** tárolja és a szerveren keresztül szolgálja ki
+  (`--serve-artifacts`). Ugyanaz a funkció, S3 nélkül — a feladat engedi az indokolt eltérést.
+- **Foglalt port:** a 5000-et a macOS AirPlay használja → a host-oldali portot 5001-re tettük.
+
+**Eredmény:** `docker compose up` után a `/train` végigfut (MLflow-ba logol, modellt regisztrál
+és promótál), a `/predict` predikál és naplóz — minden konténerben, egyetlen paranccsal.
+
+**Állapot:** 68 teszt, 100% lefedettség; a rendszer egy paranccsal indul és működik.
