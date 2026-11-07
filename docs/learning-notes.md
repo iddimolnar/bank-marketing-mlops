@@ -242,3 +242,24 @@ A konténerek a compose-hálózaton **szolgáltatásnév** alapján érik el egy
 és promótál), a `/predict` predikál és naplóz — minden konténerben, egyetlen paranccsal.
 
 **Állapot:** 68 teszt, 100% lefedettség; a rendszer egy paranccsal indul és működik.
+
+---
+
+## Fázis 7 — Evidently drift-riport + Streamlit dashboard (feature branch)
+
+**Cél:** lássuk, ha a beérkező kérések eloszlása eltér a tanító adatokétól (drift).
+
+- **`monitoring.py`** (src): összehasonlítja a **referenciát** (a tanításkor elmentett
+  feature-eloszlás) a **jelenlegi forgalommal** (a `requests.jsonl`-ből visszaolvasott
+  bemenetek), és egy **Evidently** HTML drift-riportot készít. Ha nincs referencia vagy
+  nincs még kérés, `ReportNotReadyError`-t dob.
+- **`dashboard/streamlit_app.py`**: vékony UI — gombnyomásra legenerálja és megjeleníti a
+  riportot. Üzleti logika nincs benne (az az `src`-ben van), ezért a coverage-ből kihagyjuk.
+- **compose**: új `streamlit` szolgáltatás (8501), ugyanazt a `./data` kötetet látja, mint
+  az API, így olvassa a referenciát és a kéréslognaplót.
+
+**Gyakorlati lecke:** az Evidently 0.4.40 a numpy-t 2.0.2-re korlátozta → a pint igazítottuk
+(a scikit-learn ezt is támogatja). A git **feature branchen** (`feat/evidently-dashboard`)
+dolgoztunk, és **merge-commit**tal zártuk a main-be (ez extra pontot ér).
+
+**Állapot:** 75 teszt, 100% lefedettség, flake8 + pyright tiszta.
