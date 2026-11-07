@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - run: pip install -e ".[dev]"
+      - name: Lint (flake8, PEP8 <= 1%)
+        run: flake8 src tests
+      - name: Type check (pyright, 0 errors in src)
+        run: pyright
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - run: pip install -e ".[dev]"
+      - name: Tests + coverage (>= 95%, incl. test code)
+        run: pytest --cov=src --cov=tests --cov-report=xml --cov-report=term-missing --cov-fail-under=95
+
+  # docker-build job is added in Phase 6 once the Dockerfile and compose file exist.
