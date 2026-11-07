@@ -72,3 +72,12 @@ def promote_model(settings: Settings, version: str) -> None:
         stage=PRODUCTION_STAGE,
         archive_existing_versions=True,
     )
+
+
+def production_version(settings: Settings) -> str | None:
+    """Return the version string of the current ``Production`` model, if any."""
+    client = MlflowClient(tracking_uri=settings.mlflow_tracking_uri)
+    versions = client.get_latest_versions(settings.registered_model_name, stages=[PRODUCTION_STAGE])
+    if not versions:
+        return None
+    return str(versions[0].version)
