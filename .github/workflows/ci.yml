@@ -33,4 +33,13 @@ jobs:
       - name: Tests + coverage (>= 95%, incl. test code)
         run: pytest --cov=src --cov=tests --cov-report=xml --cov-report=term-missing --cov-fail-under=95
 
-  # docker-build job is added in Phase 6 once the Dockerfile and compose file exist.
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose config
+      - name: Build API image
+        run: docker build -f docker/Dockerfile -t bank-marketing-api:ci .
+      - name: Build MLflow image
+        run: docker build -f docker/mlflow.Dockerfile -t bank-marketing-mlflow:ci .
