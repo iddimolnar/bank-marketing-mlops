@@ -170,3 +170,24 @@ Három modul:
   MLflow-hívásokat **mockolják** (így gyorsak és determinisztikusak).
 
 **Állapot:** 56 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
+
+---
+
+## Fázis 4 — Predikció és kérés-naplózás
+
+**Cél:** az éles modellel predikciót adni, és minden kérést + eredményt naplózni (ez lesz
+a drift-figyelés bemenete).
+
+- **`logstore.py`** — `RequestLogStore` protokoll + `JsonlFileLogStore`: minden predikció
+  egy JSON sor. Később ezt olvassa vissza a monitoring. (A tesztekben egy memóriabeli
+  "Fake" store-t használunk — gyors és ellenőrizhető.)
+- **`predict.py`** — `Predictor`: betölti az éles pipeline-t, a bejövő rekordot a
+  `ClientRecord` sémával validálja, predikál (címke + valószínűség + modellverzió), és
+  naplóz. `load_predictor` összerakja az éles modellből; ha nincs éles modell,
+  `ModelNotReadyError`-t dob (előbb tanítani kell).
+
+**Tanulság:** a predikciós út is a *határon* validál, és minden kérést eltesz — enélkül
+nem lenne mit monitorozni. A betölött modell "egyben" jön (pipeline), így a kiszolgálás
+ugyanazt az előfeldolgozást használja, mint a tanítás.
+
+**Állapot:** 61 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
