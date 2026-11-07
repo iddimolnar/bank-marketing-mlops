@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.pytest_cache/
+
+# Coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# MLflow (local runs) & models
+mlruns/
+mlartifacts/
+*.db
+
+# Data: raw CSV is DVC-tracked (keep the .dvc pointer, ignore the real file);
+# runtime-generated data is never committed. Fixtures ARE committed.
+/data/bank.csv
+/data/reference/*.parquet
+/data/logs/*.jsonl
+/data/reports/*.html
+
+# Secrets / local env
+.env
+
+# MinIO local volume
+minio_data/
+
+# OS
+.DS_Store
