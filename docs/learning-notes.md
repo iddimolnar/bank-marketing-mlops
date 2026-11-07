@@ -191,3 +191,26 @@ nem lenne mit monitorozni. A betölött modell "egyben" jön (pipeline), így a 
 ugyanazt az előfeldolgozást használja, mint a tanítás.
 
 **Állapot:** 61 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba.
+
+---
+
+## Fázis 5 — REST API (FastAPI)
+
+**Cél:** a modell elérhető legyen HTTP-n keresztül, `train` és `predict` végponttal.
+
+- **`api/app.py`** — alkalmazás-gyár (`create_app`) + hibakezelő: ha nincs éles modell,
+  `503`-at ad (nem 500-at). A `uvicorn bank_marketing.api.app:app` így indítható.
+- **`api/routes.py`** — három végpont:
+  - `GET /health` → `{"status":"ok"}` (életjel, konténer healthcheckhez).
+  - `POST /predict` → a bemenetet a `ClientRecord` validálja (rossz adat → `422`),
+    majd predikció + naplózás.
+  - `POST /train` → elindít egy tanítás+kapu ciklust; opcionális `test_size`/`random_state`.
+- **`api/deps.py`** — függőség-injektálás: a predikciószolgáltató külön kis függvény, amit a
+  tesztek felül tudnak írni (így nem kell MLflow a teszthez).
+
+**Tanulság:** a végpontok "vékonyak" — csak hívják az `src` logikát. A tesztek FastAPI
+`TestClient`-tel mennek, a modellt/MLflow-t Fake/Mock váltja ki → gyorsak és izoláltak.
+A `503` külön státusz jól jelzi, hogy "még nincs betanított modell", nem pedig belső hiba.
+
+**Állapot:** 68 teszt, 100% lefedettség, flake8 tiszta, pyright 0 hiba. A teljes Python
+alkalmazás kész és tesztelt; jöhet a konténerizálás.
