@@ -306,3 +306,20 @@ jelszót a logba (`docker compose logs airflow | grep -i password`), azzal lehet
 8080-as webUI-ba.
 
 **Állapot:** a DAG + image + compose kész; feature branchen (`feat/airflow`) → merge main-be.
+
+---
+
+## Fázis 10 — Adatverziózás (DVC), dokumentáció, beadás
+
+- **DVC:** a valódi `data/bank.csv` (4521 sor) **DVC** alá került — a git csak a kis
+  `data/bank.csv.dvc` mutatót tárolja, a tényleges fájlt a DVC kezeli. Remote: egy **lokális**
+  tár (`.dvcstore/`), ami a kurzus MinIO/S3 remote-ját helyettesíti (a proxy a MinIO-t tiltja).
+  `dvc pull` visszahozza az adatot. A compose innentől a teljes adathalmazon tanít.
+  - Buktató: a `pathspec` 1.1.1 túl új volt a DVC-nek (`_DIR_MARK` hiány) → 0.12.1-re pinnelve.
+- **Dokumentáció:** README a teljes szolgáltatáslistával (API, MLflow, Streamlit, Airflow),
+  DVC-szakasz, és az indokolt eltérések (MinIO/Airflow image a proxy miatt).
+- **Hátralévő:** Streamlit+Evidently és Airflow screenshotok a repóba, 1 oldalas PDF
+  (név + Neptun-kód), és a beadandó ZIP.
+
+**Összegzés:** Phase 0–9 kész, 48+ commit, 100% coverage, flake8 + pyright gentle-strict tiszta,
+`docker compose up` az összes szolgáltatást elindítja (API, MLflow, Streamlit/Evidently, Airflow).
