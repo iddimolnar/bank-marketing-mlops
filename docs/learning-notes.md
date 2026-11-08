@@ -284,3 +284,25 @@ dolgoztunk, és **merge-commit**tal zártuk a main-be (ez extra pontot ér).
   docker image build), és a **pre-commit**hez is bekerült a pyright (pre-push).
 
 **Állapot:** 75 teszt, 100% lefedettség, flake8 tiszta, **pyright gentle-strict 0 hiba**.
+
+---
+
+## Fázis 9 — Airflow ütemezett újratanítás (+5%, 2. feature branch)
+
+**Cél:** egy ütemezett folyamat, ami rendszeresen újratanítja a modellt.
+
+- **`airflow/dags/retrain_dag.py`**: egy napi DAG, ami **nem** importálja a csomagunkat,
+  hanem a `api` szolgáltatás **`/train` végpontját hívja** HTTP-n. Így az Airflow külön
+  környezete nem ütközik az MLflow-val (az Airflow SQLAlchemy <2.0-t, az MLflow >=2.0-t
+  igényel) — tiszta szétcsatolás, az ML-logika az API-ban marad.
+- **`docker/airflow.Dockerfile`**: mivel az `apache/airflow` image-et a céges proxy tiltja,
+  **saját image** készül `python:3.12-slim` (engedélyezett) alapról, és pip-pel telepíti az
+  Airflow-t a hivatalos constraints fájllal. `airflow standalone` indítja (SQLite +
+  SequentialExecutor, webUI 8080).
+- **compose**: új `airflow` szolgáltatás (8080), a `./airflow/dags` becsatolva.
+
+**Megjegyzés a screenshothoz:** az `airflow standalone` első indításkor generál egy `admin`
+jelszót a logba (`docker compose logs airflow | grep -i password`), azzal lehet belépni a
+8080-as webUI-ba.
+
+**Állapot:** a DAG + image + compose kész; feature branchen (`feat/airflow`) → merge main-be.
