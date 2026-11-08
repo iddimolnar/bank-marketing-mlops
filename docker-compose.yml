@@ -46,7 +46,7 @@ services:
       dockerfile: docker/Dockerfile
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      BANK_DATA_PATH: ${BANK_DATA_PATH:-data/fixtures/tiny_bank.csv}
+      BANK_DATA_PATH: ${BANK_DATA_PATH:-data/bank.csv}
     ports:
       - "8000:8000"
     volumes:
