@@ -76,5 +76,11 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "f
 
 [tool.pyright]
 include = ["src"]
-typeCheckingMode = "standard"
+typeCheckingMode = "strict"
 pythonVersion = "3.12"
+# "Gentle strict": full strict checking, but don't fail on third-party libraries that
+# ship no type information (sklearn, mlflow, evidently, ...).
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
