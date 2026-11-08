@@ -71,6 +71,22 @@ services:
       api:
         condition: service_started
 
+  # Extra (+5%): Airflow schedules retraining by calling the API's /train endpoint.
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   pg_data:
   mlartifacts:
