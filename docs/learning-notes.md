@@ -263,3 +263,24 @@ A konténerek a compose-hálózaton **szolgáltatásnév** alapján érik el egy
 dolgoztunk, és **merge-commit**tal zártuk a main-be (ez extra pontot ér).
 
 **Állapot:** 75 teszt, 100% lefedettség, flake8 + pyright tiszta.
+
+---
+
+## Fázis 8 — CI-szigorítás + Pyright „gentle-strict" (+5%)
+
+**Cél:** a típusellenőrzés a legszigorúbb értelmes szinten, 0 hibával.
+
+- A Pyrightot **strict** módra kapcsoltuk az `src/`-re, de kikapcsoltuk azokat a
+  szabályokat, amik csak a típusozatlan külső könyvtárak (sklearn, mlflow, evidently)
+  miatt zajonganának (`reportUnknownMemberType/ArgumentType/VariableType`,
+  `reportMissingTypeStubs`). Ez a feladat „gentle-strict" configja (+5%).
+- Két valódi javítás kellett:
+  - a `SupportsPredict` Protocol `np.ndarray` visszatéréseihez **típusargumentum**
+    (`NDArray[Any]`), különben strict módban „részben ismeretlen" a típus;
+  - a FastAPI hibakezelőt **modul-szintű függvénnyé** tettük és
+    `add_exception_handler`-rel regisztráltuk (a dekorátoros változatot a strict mód
+    „unused function"-nek hitte).
+- A **CI** (`ci.yml`) már ezt a configot futtatja (flake8 + pyright + 95% coverage +
+  docker image build), és a **pre-commit**hez is bekerült a pyright (pre-push).
+
+**Állapot:** 75 teszt, 100% lefedettség, flake8 tiszta, **pyright gentle-strict 0 hiba**.
