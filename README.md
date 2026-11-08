@@ -31,12 +31,14 @@ UCI). See `data/` and the dataset report.
 docker compose up -d --build
 ```
 
-This starts PostgreSQL, the MLflow tracking server and the FastAPI service. Then:
+This starts PostgreSQL, MLflow, the FastAPI service, the Streamlit dashboard and Airflow:
 
-| Service | URL |
-|---------|-----|
-| REST API (Swagger) | http://localhost:8000/docs |
-| MLflow UI | http://localhost:5001 |
+| Service | URL | Notes |
+|---------|-----|-------|
+| REST API (Swagger) | http://localhost:8000/docs | `/health`, `/train`, `/predict` |
+| MLflow UI | http://localhost:5001 | experiments + model registry |
+| Streamlit (Evidently drift) | http://localhost:8501 | click "Generate / refresh drift report" |
+| Airflow | http://localhost:8080 | user `admin`; password in `docker compose logs airflow \| grep -i password` |
 
 Smoke test:
 
@@ -49,12 +51,25 @@ docker compose down          # stop (add -v to also drop volumes)
 ```
 
 > **Artifact store note.** The course used MinIO (S3) as the MLflow artifact store, but
-> this environment's Docker registry proxy only allows official library images, so MinIO
-> cannot be pulled. MLflow therefore stores artifacts on a shared volume and serves them
-> through the tracking server (proxied artifact access) — same functionality, no S3.
-> The MLflow UI is mapped to host port **5001** because macOS AirPlay often occupies 5000.
+> this environment's Docker registry proxy only allows official library images, so neither
+> MinIO nor `apache/airflow` can be pulled. MLflow therefore stores artifacts on a shared
+> volume and serves them through the tracking server (proxied artifact access), and Airflow
+> runs from a self-built image on the `python:3.12-slim` base — same functionality, no S3.
+> The MLflow UI is on host port **5001** because macOS AirPlay often occupies 5000.
+
+## Data versioning (DVC)
+
+The dataset is tracked with **DVC** (the raw `data/bank.csv` is DVC-managed; only the small
+`data/bank.csv.dvc` pointer is in git). A local DVC remote (`.dvcstore/`) stands in for the
+MinIO/S3 remote used in the course, since the registry proxy blocks MinIO.
+
+```bash
+dvc pull            # fetch data/bank.csv from the DVC remote
+dvc repro           # (optional) reproduce tracked stages
+```
 
 ## Local development
+
 
 
 ```bash
