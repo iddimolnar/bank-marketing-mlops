@@ -8,3 +8,5 @@ flake8==7.1.1
 ruff==0.7.3
 pyright==1.1.389
 pre-commit==4.0.1
+dvc==3.56.0
+pathspec==0.12.1  # pinned: dvc 3.56 needs pathspec <1.0 (the _DIR_MARK symbol)
