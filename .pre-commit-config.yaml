@@ -24,6 +24,13 @@ repos:
 
   - repo: local
     hooks:
+      - id: pyright
+        name: pyright (gentle-strict, src/)
+        entry: pyright
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-push]
       - id: pytest
         name: pytest (with coverage gate)
         entry: pytest --cov=src --cov=tests --cov-fail-under=95 -q
