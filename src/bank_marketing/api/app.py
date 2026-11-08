@@ -14,6 +14,11 @@ from bank_marketing.api.routes import router
 from bank_marketing.predict import ModelNotReadyError
 
 
+async def _model_not_ready_handler(_request: Request, exc: Exception) -> JSONResponse:
+    """Return 503 (not 500) when no production model is available yet."""
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
 def create_app() -> FastAPI:
     """Build and configure the FastAPI application."""
     app = FastAPI(
@@ -22,11 +27,7 @@ def create_app() -> FastAPI:
         description="Train and serve a term-deposit subscription classifier.",
     )
     app.include_router(router)
-
-    @app.exception_handler(ModelNotReadyError)
-    async def _model_not_ready(_request: Request, exc: ModelNotReadyError) -> JSONResponse:
-        return JSONResponse(status_code=503, content={"detail": str(exc)})
-
+    app.add_exception_handler(ModelNotReadyError, _model_not_ready_handler)
     return app
 
 

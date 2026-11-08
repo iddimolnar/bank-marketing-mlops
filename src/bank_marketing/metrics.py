@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 
-import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -22,9 +22,9 @@ METRIC_NAMES: tuple[str, ...] = ("roc_auc", "f1", "accuracy", "precision", "reca
 class SupportsPredict(Protocol):
     """Structural type for a fitted binary classifier (e.g. a sklearn Pipeline)."""
 
-    def predict(self, x: pd.DataFrame) -> np.ndarray: ...  # pragma: no cover - typing only
+    def predict(self, x: pd.DataFrame) -> NDArray[Any]: ...  # pragma: no cover - typing only
 
-    def predict_proba(self, x: pd.DataFrame) -> np.ndarray: ...  # pragma: no cover - typing only
+    def predict_proba(self, x: pd.DataFrame) -> NDArray[Any]: ...  # pragma: no cover - typing only
 
 
 def evaluate(estimator: SupportsPredict, features: pd.DataFrame, target: pd.Series) -> dict[str, float]:
