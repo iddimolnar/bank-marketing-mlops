@@ -11,5 +11,6 @@ Evidence of the running system (captured from a live `docker compose up`).
 | `api_predict.png` | `/predict` executed via Swagger returning HTTP **200** with the prediction. |
 | `docker.png` | Docker Desktop: `postgres`, `mlflow` (5001), `api` (8000) containers running. |
 | `tests_coverage.png` | `pytest` run: **100%** coverage, all tests passing. |
-
-Streamlit + Evidently and Airflow screenshots are added in later phases.
+| `streamlit_evidently.png` | Streamlit dashboard rendering the **Evidently** drift report (dataset drift summary). |
+| `streamlit_evidently_detail.png` | Evidently per-column drift detail (reference vs current distributions). |
+| `airflow.png` | Airflow `bank_marketing_retrain` DAG with a **successful** run. |
